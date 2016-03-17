@@ -39,13 +39,15 @@ int programSelect(){
 // the loop routine runs over and over again forever:
 void loop() {
 
-Serial.println("PROGRAM SELECT:");
+Serial.println("PROGRAM SELECTION:");
 Serial.println(programSelect());
   
   switch (programSelect()) {
+    
     case 0:
+      // RGB switch input mode
       Serial.println("RGB Switch Mode (Program 0)");
-      // Switch to RGB mode
+      
       while(true) {
         
         if (digitalRead(dipPins[0]) == HIGH && digitalRead(dipPins[1]) == HIGH && digitalRead(dipPins[2]) == HIGH) {
@@ -71,38 +73,50 @@ Serial.println(programSelect());
             setPinValue(bluePin, 0);
           }
         }
+        
       }
+       
       break;
+      
     case 1:
+    
       // RGB fading
       Serial.println("RGB Cycle Mode (Program 1)");
+      
       unsigned int rgbColour[3];
 
-  // Start off with red.
-  rgbColour[0] = 255;
-  rgbColour[1] = 0;
-  rgbColour[2] = 0;  
+      // Start off with red.
+      rgbColour[0] = 255;
+      rgbColour[1] = 0;
+      rgbColour[2] = 0;
 
-  // Choose the colours to increment and decrement.
-  for (int decColour = 0; decColour < 3; decColour += 1) {
-    int incColour = decColour == 2 ? 0 : decColour + 1;
-
-    // cross-fade the two colours.
-    for(int i = 0; i < 255; i += 1) {
-      rgbColour[decColour] -= 1;
-      rgbColour[incColour] += 1;
+      while(true) {
+    
+        // Choose the colours to increment and decrement.
+        for (int decColour = 0; decColour < 3; decColour += 1) {
+          int incColour = decColour == 2 ? 0 : decColour + 1;
       
-      setPinValue(redPin, rgbColour[0]);
-      setPinValue(greenPin, rgbColour[1]);
-      setPinValue(bluePin, rgbColour[2]);
-      delay(5);
-    }
-  }
+          // cross-fade the two colours.
+          for(int i = 0; i < 255; i += 1) {
+            rgbColour[decColour] -= 1;
+            rgbColour[incColour] += 1;
+            
+            setPinValue(redPin, rgbColour[0]);
+            setPinValue(greenPin, rgbColour[1]);
+            setPinValue(bluePin, rgbColour[2]);
+            delay(5);
+          }
+        }
+      }
+      
       break;
+      
     default: 
+    
       // No available program for this ID
       // Flash the feedback LED
       Serial.println("No program available!");
+      
       while(true) {
         digitalWrite(led, HIGH);
         delay(1000);
