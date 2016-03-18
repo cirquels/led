@@ -1,90 +1,155 @@
-// Pin 13 has an LED connected on most Arduino boards.
-// give it a name:
-int led = 13;
+// These are our lovely output pins
+#define outputPinLedFeedback 13
+#define outputPinLedRed 3
+#define outputPinLedGreen 5
+#define outputPinLedBlue 6
+#define outputPinLedWhite 9
 
-int redPin = 3;
-int greenPin = 5;
-int bluePin = 6;
-int whitePin = 9;
+const byte inputPinsDips[] = {A0,A1,A2};
 
-int dipPins[] = {A0,A1,A2};
+// These are nice preset colours
 
-// Let's set this show up!
+// Black
+byte COLOUR_BLACK[] = { 0, 0, 0, 0 };
+
+// The primaries
+byte COLOUR_RED[] = { 255, 0, 0, 0 };
+byte COLOUR_GREEN[] = { 0, 255, 0, 0 };
+byte COLOUR_BLUE[] = { 0, 0, 255, 0 };
+
+// The mixed primaries
+byte COLOUR_YELLOW[] = { 255, 255, 0, 0 };
+byte COLOUR_MAGENTA[] = { 255, 0, 255, 0 };
+byte COLOUR_CYAN[] = { 0, 255, 255, 0 };
+
+// The flavours of white
+byte COLOUR_WHITE_MIX[] = { 255, 255, 255, 0 };
+byte COLOUR_WHITE_TRUE[] = { 0, 0, 0, 255 };
+
+/*
+ *  Set Output
+ *  This is the only function which should be used to interact with the output pins.
+ */
+ 
+void setOutput(byte colour[4]) {
+  analogWrite(outputPinLedRed, 255 - colour[0]);
+  analogWrite(outputPinLedGreen, 255 - colour[1]);
+  analogWrite(outputPinLedBlue, 255 - colour[2]);
+  analogWrite(outputPinLedWhite, 255 - colour[3]);
+}
+
+/*
+ *  Read DIP Switch Values
+ */
+ 
+byte DIPReadValue(){
+  byte i,j=0;
+  for(i=0; i<=2; i++){
+    j = (j << 1) | digitalRead(inputPinsDips[i]);
+  }
+  return (byte) j;
+}
+
+// This function takes an array of RGBW arrays, and a dwell time, then cycles
+void staticColourCycle(byte colours[][4], int dwellTime = 500) {
+  Serial.println("SCC");
+
+  int numColours = sizeof(colours);
+
+  Serial.println(numColours);
+
+  byte i = 0;
+
+  for (i = 0; i < numColours; i++) {
+
+    Serial.print("Colour Step: ");
+    Serial.println(i);
+
+    byte output[4] = { colours[i][0], colours[i][1], colours[i][2], colours[i][3] };
+    setOutput(output);
+    
+    delay(dwellTime);
+  }
+  
+}
+
+/* Set
+ * Set up the whole shebang.
+ */
 void setup() {
 
   Serial.begin(9600);
   
   // initialize the feedback pin as an output.
   // We don't need to initialise the PWM pins, analogWrite() does that for us
-  pinMode(led, OUTPUT);
+  pinMode(outputPinLedFeedback, OUTPUT);
   
   // Initialise the inputs as inputs.
-  int i;
+  byte i;
   for(i = 0; i<=2; i++){
-    pinMode(dipPins[i], INPUT);
+    pinMode(inputPinsDips[i], INPUT);
   }
 
   // Set all the outputs to off
-  setPinValue(redPin, 0);
-  setPinValue(greenPin, 0);
-  setPinValue(bluePin, 0);
-  setPinValue(whitePin, 0);
-}
-
-// This sets pin values via the necessary maths to account for the strip being a common anode
-void setPinValue(int pin, int value) {
-  analogWrite(pin, 255-value);
-}
-
-// This handy function reads the program select code from the DIP switches
-int programSelect(){
-  int i,j=0;
-  for(i=0; i<=2; i++){
-    j = (j << 1) | digitalRead(dipPins[i]);
-  }
-  return (int) j;
+  setOutput(COLOUR_BLACK);
 }
 
 // Enter the loop!
 void loop() {
 
-  Serial.println("PROGRAM SELECTION:");
-  Serial.println(programSelect());
+  byte programId = DIPReadValue();
+
+  Serial.print("PROGRAM SELECTION: ");
+  Serial.println(programId);
 
   // This switch statement performs the program selection
-  switch (programSelect()) {
+  switch (programId) {
     
     case 0:
+
       {
     
-      // RGB switch input mode
-      // Reads DIPs 2, 3 and 4 corresponding to red, green and blue. Switches to white LEDs when all are high.
+      // Direct Colour Select Mode 1
+      // Emulates the behaviour of the classic RGB switches.
       Serial.println("RGB Switch Mode (Program 0)");
       
       while(true) {
-        
-        if (digitalRead(dipPins[0]) == HIGH && digitalRead(dipPins[1]) == HIGH && digitalRead(dipPins[2]) == HIGH) {
-          setPinValue(redPin, 0);
-          setPinValue(greenPin, 0);
-          setPinValue(bluePin, 0);
-          setPinValue(whitePin, 255);
-        } else {
-          setPinValue(whitePin, 0);
-          if (digitalRead(dipPins[0]) == HIGH) {
-            setPinValue(redPin, 255);
-          } else {
-            setPinValue(redPin, 0);
-          }
-          if (digitalRead(dipPins[1]) == HIGH) {
-            setPinValue(greenPin, 255);
-          } else {
-            setPinValue(greenPin, 0);
-          }
-          if (digitalRead(dipPins[2]) == HIGH) {
-            setPinValue(bluePin, 255);
-          } else {
-            setPinValue(bluePin, 0);
-          }
+
+        byte colourSelection = DIPReadValue();
+
+        switch (colourSelection) {
+          case 1:
+            // 001 - Blue
+            setOutput(COLOUR_BLUE);
+            break;
+          case 2:
+            // 010 - Green
+            setOutput(COLOUR_GREEN);
+            break;
+          case 3:
+            // 011 - Cyan
+            setOutput(COLOUR_CYAN);
+            break;
+          case 4:
+            // 100 - Red
+            setOutput(COLOUR_RED);
+            break;
+          case 5:
+            // 101 - Magenta
+            setOutput(COLOUR_MAGENTA);
+            break;
+          case 6:
+            // 110 - Yellow
+            setOutput(COLOUR_YELLOW);
+            break;
+          case 7:
+            // 111 - White
+            setOutput(COLOUR_WHITE_TRUE);
+            break;
+          default:
+            // 000 - Black
+            setOutput(COLOUR_BLACK);
+            break;
         }
         
       }
@@ -99,9 +164,10 @@ void loop() {
     
       // RGB Fading
       // Cycles smoothly between the red, green and blue LEDs.
+      // Use DIPs to set the cycle speed
       Serial.println("RGB Cycle Mode (Program 1)");
-      
-      unsigned int rgbColour[3];
+
+      byte rgbColour[3];
 
       // Start off with red.
       rgbColour[0] = 255;
@@ -109,22 +175,34 @@ void loop() {
       rgbColour[2] = 0;
 
       // How long should we wait between shifting to the next step (milliseconds).
-      int cycleTime = 5;
+      byte cycleBaseTime = 5;
+      byte cycleMultiplier = 0;
+      byte cycleTime = cycleBaseTime * cycleMultiplier;
+
 
       while(true) {
+
+        cycleMultiplier = DIPReadValue();
+
+        if (cycleMultiplier == 0) {
+          cycleTime = cycleBaseTime;
+        } else {
+          cycleTime = cycleBaseTime * cycleMultiplier;
+        }
     
         // Choose the colours to increment and decrement.
-        for (int decColour = 0; decColour < 3; decColour += 1) {
-          int incColour = decColour == 2 ? 0 : decColour + 1;
+        for (byte decColour = 0; decColour < 3; decColour += 1) {
+          byte incColour = decColour == 2 ? 0 : decColour + 1;
       
           // cross-fade the two colours.
-          for(int i = 0; i < 255; i += 1) {
+          for(byte i = 0; i < 255; i += 1) {
             rgbColour[decColour] -= 1;
             rgbColour[incColour] += 1;
+
+            byte output[4] = { rgbColour[0], rgbColour[1], rgbColour[2], 0 };
+
+            setOutput(output);
             
-            setPinValue(redPin, rgbColour[0]);
-            setPinValue(greenPin, rgbColour[1]);
-            setPinValue(bluePin, rgbColour[2]);
             delay(cycleTime);
           }
         }
@@ -142,19 +220,16 @@ void loop() {
       // Cycles red, white and blue with a delay on each colour.
       Serial.println("Rule Britannia (Program 2)");
 
-      int dwellTime = 600;
-      
+      byte colours[][4] = {
+          {*COLOUR_RED},
+          { 0, 255, 0, 0 },
+          { 0, 0, 255, 0 },
+          { 0, 0, 0, 255 }
+        };
+
       while(true) {
-        
-        setPinValue(redPin, 255);
-        setPinValue(bluePin, 0);
-        delay(dwellTime);
-        setPinValue(whitePin, 255);
-        setPinValue(redPin, 0);
-        delay(dwellTime);
-        setPinValue(bluePin, 255);
-        setPinValue(whitePin, 0);
-        delay(dwellTime);
+
+        staticColourCycle(colours);
         
       }
        
@@ -169,9 +244,9 @@ void loop() {
       Serial.println("No program available!");
       
       while(true) {
-        digitalWrite(led, HIGH);
+        digitalWrite(outputPinLedFeedback, HIGH);
         delay(1000);
-        digitalWrite(led, LOW);
+        digitalWrite(outputPinLedFeedback, LOW);
         delay(1000);
       }
     break;
