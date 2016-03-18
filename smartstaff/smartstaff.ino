@@ -133,6 +133,34 @@ void loop() {
       break;
 
       }
+
+    case 2:
+
+      {
+    
+      // Rule Britannia (or any othe nation with a red, white and blue flag)
+      // Cycles red, white and blue with a delay on each colour.
+      Serial.println("Rule Britannia (Program 2)");
+
+      int dwellTime = 600;
+      
+      while(true) {
+        
+        setPinValue(redPin, 255);
+        setPinValue(bluePin, 0);
+        delay(dwellTime);
+        setPinValue(whitePin, 255);
+        setPinValue(redPin, 0);
+        delay(dwellTime);
+        setPinValue(bluePin, 255);
+        setPinValue(whitePin, 0);
+        delay(dwellTime);
+        
+      }
+       
+      break;
+
+      }
       
     default: 
     
