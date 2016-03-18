@@ -9,43 +9,56 @@ int whitePin = 9;
 
 int dipPins[] = {A0,A1,A2};
 
-// the setup routine runs once when you press reset:
+// Let's set this show up!
 void setup() {
 
   Serial.begin(9600);
   
-  // initialize the feedback digital pin as an output.
+  // initialize the feedback pin as an output.
   // We don't need to initialise the PWM pins, analogWrite() does that for us
   pinMode(led, OUTPUT);
+  
   // Initialise the inputs as inputs.
   int i;
   for(i = 0; i<=2; i++){
     pinMode(dipPins[i], INPUT);
-   }
+  }
+
+  // Set all the outputs to off
+  setPinValue(redPin, 0);
+  setPinValue(greenPin, 0);
+  setPinValue(bluePin, 0);
+  setPinValue(whitePin, 0);
 }
 
+// This sets pin values via the necessary maths to account for the strip being a common anode
 void setPinValue(int pin, int value) {
   analogWrite(pin, 255-value);
 }
 
+// This handy function reads the program select code from the DIP switches
 int programSelect(){
- int i,j=0;
- for(i=0; i<=2; i++){
-   j = (j << 1) | digitalRead(dipPins[i]);
- }
- return (int) j;
+  int i,j=0;
+  for(i=0; i<=2; i++){
+    j = (j << 1) | digitalRead(dipPins[i]);
+  }
+  return (int) j;
 }
 
-// the loop routine runs over and over again forever:
+// Enter the loop!
 void loop() {
 
-Serial.println("PROGRAM SELECTION:");
-Serial.println(programSelect());
-  
+  Serial.println("PROGRAM SELECTION:");
+  Serial.println(programSelect());
+
+  // This switch statement performs the program selection
   switch (programSelect()) {
     
     case 0:
+      {
+    
       // RGB switch input mode
+      // Reads DIPs 2, 3 and 4 corresponding to red, green and blue. Switches to white LEDs when all are high.
       Serial.println("RGB Switch Mode (Program 0)");
       
       while(true) {
@@ -77,10 +90,15 @@ Serial.println(programSelect());
       }
        
       break;
+
+      }
       
     case 1:
+
+      {
     
-      // RGB fading
+      // RGB Fading
+      // Cycles smoothly between the red, green and blue LEDs.
       Serial.println("RGB Cycle Mode (Program 1)");
       
       unsigned int rgbColour[3];
@@ -89,6 +107,9 @@ Serial.println(programSelect());
       rgbColour[0] = 255;
       rgbColour[1] = 0;
       rgbColour[2] = 0;
+
+      // How long should we wait between shifting to the next step (milliseconds).
+      int cycleTime = 5;
 
       while(true) {
     
@@ -104,12 +125,14 @@ Serial.println(programSelect());
             setPinValue(redPin, rgbColour[0]);
             setPinValue(greenPin, rgbColour[1]);
             setPinValue(bluePin, rgbColour[2]);
-            delay(5);
+            delay(cycleTime);
           }
         }
       }
       
       break;
+
+      }
       
     default: 
     
