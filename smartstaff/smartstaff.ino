@@ -60,7 +60,7 @@ byte DIPReadValue(){
 }
 
 // This function takes an array of RGBW arrays, and a dwell time, then cycles
-void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps = 250) {
+void goToColour(byte colour[4], int dwellTime = 255, int fadeTime = 0, int steps = 255) {
 
   byte output[4];
 
@@ -77,6 +77,12 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps
     if (steps > fadeTime) {
       steps = fadeTime;
     }
+
+    // We also can't have more than 255 steps (as that's how many brightness options we have)
+    if (steps > 255){
+        steps=255;
+    }
+
 
     // What's the actual delta per step for each colour?
     int changeRedStep = (colour[0] - currentColourRed) / steps;
@@ -252,21 +258,10 @@ void loop() {
           cycleTime = cycleBaseTime * cycleMultiplier;
         }
 
-        // Choose the colours to increment and decrement.
-        for (byte decColour = 0; decColour < 3; decColour += 1) {
-          byte incColour = decColour == 2 ? 0 : decColour + 1;
+        goToColour(COLOUR_RED,cycleTime);
+        goToColour(COLOUR_GREEN,cycleTime);
+        gotoColour(COLOUR_BLUE,cycleTime);
 
-          // cross-fade the two colours.
-          for(byte i = 0; i < 255; i += 1) {
-            rgbColour[decColour] -= 1;
-            rgbColour[incColour] += 1;
-
-            byte output[4] = { rgbColour[0], rgbColour[1], rgbColour[2], 0 };
-
-            setOutput(output);
-
-            delay(cycleTime);
-          }
         }
       }
 
