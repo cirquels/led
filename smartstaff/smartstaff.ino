@@ -102,10 +102,10 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, byte step
     int i;
     for(i=0; i<=steps; i++){
 
-      int colourOutputRed = currentColourRed + changeRedStep;
-      int colourOutputGreen = currentColourGreen + changeGreenStep;
-      int colourOutputBlue = currentColourBlue + changeBlueStep;
-      int colourOutputWhite = currentColourWhite + changeWhiteStep;
+      byte colourOutputRed = currentColourRed + changeRedStep;
+      byte colourOutputGreen = currentColourGreen + changeGreenStep;
+      byte colourOutputBlue = currentColourBlue + changeBlueStep;
+      byte colourOutputWhite = currentColourWhite + changeWhiteStep;
 
       // Sanity!
       if (colourOutputRed > 255) colourOutputRed = 255;
