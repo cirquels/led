@@ -260,9 +260,8 @@ void loop() {
 
         goToColour(COLOUR_RED,cycleTime);
         goToColour(COLOUR_GREEN,cycleTime);
-        gotoColour(COLOUR_BLUE,cycleTime);
+        goToColour(COLOUR_BLUE,cycleTime);
 
-        }
       }
 
       break;
