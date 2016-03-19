@@ -60,7 +60,7 @@ byte DIPReadValue(){
 }
 
 // This function takes an array of RGBW arrays, and a dwell time, then cycles
-void goToColour(byte colour[4], int dwellTime = 255, int fadeTime = 0, int steps = 255) {
+void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps = 255) {
 
   byte output[4];
 
