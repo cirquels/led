@@ -278,7 +278,7 @@ void loop() {
 
     {
 
-      // Rule Britannia (or any othe nation with a red, white and blue flag)
+      // Rule Britannia (or any other nation with a red, white and blue flag)
       // Cycles red, white and blue with a delay on each colour.
       Serial.println("Rule Britannia (Program 2)");
 
