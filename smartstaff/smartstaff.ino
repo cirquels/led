@@ -1,3 +1,10 @@
+#include <RHDatagram.h>
+#include <RH_ASK.h>
+#include <SPI.h>
+
+// This is this device's address
+#define CLIENT_ADDRESS 0x01
+
 // These are our lovely output pins
 #define outputPinLedFeedback 13
 #define outputPinLedRed 3
@@ -5,6 +12,7 @@
 #define outputPinLedBlue 6
 #define outputPinLedWhite 9
 
+// These pins are the DIP inputs
 const byte inputPinsDips[] = {A0,A1,A2};
 
 // These are nice preset colours
@@ -59,8 +67,8 @@ byte DIPReadValue(){
 
 }
 
-// This function takes an array of RGBW arrays, and a dwell time, then cycles
-void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps = 255) {
+// This function fades to a specific colour from whatever the current state is.
+void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps = 250) {
 
   byte output[4];
 
@@ -103,10 +111,10 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps
     int i;
     for(i=0; i<=steps; i++){
 
-      int colourOutputRed = currentColourRed + changeRedStep;
-      int colourOutputGreen = currentColourGreen + changeGreenStep;
-      int colourOutputBlue = currentColourBlue + changeBlueStep;
-      int colourOutputWhite = currentColourWhite + changeWhiteStep;
+      byte colourOutputRed = currentColourRed + changeRedStep;
+      byte colourOutputGreen = currentColourGreen + changeGreenStep;
+      byte colourOutputBlue = currentColourBlue + changeBlueStep;
+      byte colourOutputWhite = currentColourWhite + changeWhiteStep;
 
       // Sanity!
       if (colourOutputRed > 255) colourOutputRed = 255;
@@ -135,6 +143,12 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps
 
 }
 
+// Radio control!
+RH_ASK driver(6000);
+RHDatagram manager(driver, CLIENT_ADDRESS);
+
+uint8_t buf[RH_ASK_MAX_MESSAGE_LEN];
+
 // Set up the whole shebang.
 void setup() {
 
@@ -152,6 +166,7 @@ void setup() {
 
   // Set all the outputs to off
   setOutput(COLOUR_BLACK);
+
 }
 
 // Enter the loop!
@@ -281,6 +296,39 @@ void loop() {
         goToColour(COLOUR_RED, 1200, 200);
         goToColour(COLOUR_WHITE_TRUE, 1200, 200);
         goToColour(COLOUR_BLUE, 1200, 200);
+
+      }
+
+      break;
+
+    }
+
+    case 7:
+
+    {
+
+      // Remote Raw Stream
+      // Listens for raw colour commands from the remote, and blindly obeys
+      Serial.println("Remote - Raw Stream (Program 7)");
+
+      // Start listening for things
+      if (!manager.init())
+        Serial.println("Error with radio init!");
+
+      while(true) {
+
+        if (manager.available())
+        {
+          // Wait for a message addressed to us from the client
+          uint8_t len = sizeof(buf);
+          uint8_t from;
+          if (manager.recvfrom(buf, &len, &from))
+          {
+            byte colour[4] = { (byte)buf[0], (byte)buf[1], (byte)buf[2], (byte)buf[3] };
+            int fadeTime = (byte)buf[4] * 256 + (byte)buf[5];
+            goToColour(colour, 0, fadeTime);
+          }
+        }
 
       }
 
