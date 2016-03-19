@@ -7,8 +7,11 @@ before_install:
   - tar xf arduino-1.6.8-linux64.tar.xz
   - sudo mv arduino-1.6.8 /usr/local/share/arduino
   - sudo ln -s /usr/local/share/arduino/arduino /usr/local/bin/arduino
+  - wget http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.57.zip -O radiohead.zip
+  - unzip radiohead.zip -d /usr/local/share/arduino/libraries
 script:
-  - arduino --verify --board arduino:avr:uno $PWD/smartstaff/smartstaff.ino
+  - arduino --verify --board arduino:avr:nano:cpu=atmega328 $PWD/smartstaff/smartstaff.ino
+  - arduino --verify --board arduino:avr:uno $PWD/base/base.ino
 notifications:
   email:
     on_success: change
