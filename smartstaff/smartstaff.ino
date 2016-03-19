@@ -127,6 +127,7 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, byte step
 
     byte output[4] = { colour[0], colour[1], colour[2], colour[3] };
     setOutput(output);
+
   }
 
   // Wait about for the given dwell time.
