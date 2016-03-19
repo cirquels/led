@@ -10,21 +10,21 @@ const byte inputPinsDips[] = {A0,A1,A2};
 // These are nice preset colours
 
 // Black
-byte COLOUR_BLACK[] = { 0, 0, 0, 0 };
+byte COLOUR_BLACK[4] = { 0, 0, 0, 0 };
 
 // The primaries
-byte COLOUR_RED[] = { 255, 0, 0, 0 };
-byte COLOUR_GREEN[] = { 0, 255, 0, 0 };
-byte COLOUR_BLUE[] = { 0, 0, 255, 0 };
+byte COLOUR_RED[4] = { 255, 0, 0, 0 };
+byte COLOUR_GREEN[4] = { 0, 255, 0, 0 };
+byte COLOUR_BLUE[4] = { 0, 0, 255, 0 };
 
 // The mixed primaries
-byte COLOUR_YELLOW[] = { 255, 255, 0, 0 };
-byte COLOUR_MAGENTA[] = { 255, 0, 255, 0 };
-byte COLOUR_CYAN[] = { 0, 255, 255, 0 };
+byte COLOUR_YELLOW[4] = { 255, 255, 0, 0 };
+byte COLOUR_MAGENTA[4] = { 255, 0, 255, 0 };
+byte COLOUR_CYAN[4] = { 0, 255, 255, 0 };
 
 // The flavours of white
-byte COLOUR_WHITE_MIX[] = { 255, 255, 255, 0 };
-byte COLOUR_WHITE_TRUE[] = { 0, 0, 0, 255 };
+byte COLOUR_WHITE_MIX[4] = { 255, 255, 255, 0 };
+byte COLOUR_WHITE_TRUE[4] = { 0, 0, 0, 255 };
 
 // Variables to hold the current colour, so fades can be calculated
 byte currentColourRed;
@@ -60,7 +60,7 @@ byte DIPReadValue(){
 }
 
 // This function takes an array of RGBW arrays, and a dwell time, then cycles
-void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps = 250) {
+void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, byte steps = 255) {
 
   byte output[4];
 
@@ -76,6 +76,11 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps
     // First, sanity check. We can't have more steps than we have fade time.
     if (steps > fadeTime) {
       steps = fadeTime;
+    }
+
+    // Second, sanity check. We can't have more than 255 steps.
+    if (steps > 255) {
+      steps = 255;
     }
 
     // What's the actual delta per step for each colour?
@@ -97,10 +102,10 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps
     int i;
     for(i=0; i<=steps; i++){
 
-      int colourOutputRed = currentColourRed + changeRedStep;
-      int colourOutputGreen = currentColourGreen + changeGreenStep;
-      int colourOutputBlue = currentColourBlue + changeBlueStep;
-      int colourOutputWhite = currentColourWhite + changeWhiteStep;
+      byte colourOutputRed = currentColourRed + changeRedStep;
+      byte colourOutputGreen = currentColourGreen + changeGreenStep;
+      byte colourOutputBlue = currentColourBlue + changeBlueStep;
+      byte colourOutputWhite = currentColourWhite + changeWhiteStep;
 
       // Sanity!
       if (colourOutputRed > 255) colourOutputRed = 255;
@@ -122,6 +127,7 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps
 
     byte output[4] = { colour[0], colour[1], colour[2], colour[3] };
     setOutput(output);
+
   }
 
   // Wait about for the given dwell time.
