@@ -26,6 +26,12 @@ byte COLOUR_CYAN[] = { 0, 255, 255, 0 };
 byte COLOUR_WHITE_MIX[] = { 255, 255, 255, 0 };
 byte COLOUR_WHITE_TRUE[] = { 0, 0, 0, 255 };
 
+// Variables to hold the current colour, so fades can be calculated
+byte currentColourRed;
+byte currentColourGreen;
+byte currentColourBlue;
+byte currentColourWhite;
+
 // Set Output
 void setOutput(byte colour[4]) {
 
@@ -33,6 +39,11 @@ void setOutput(byte colour[4]) {
   analogWrite(outputPinLedGreen, 255 - colour[1]);
   analogWrite(outputPinLedBlue, 255 - colour[2]);
   analogWrite(outputPinLedWhite, 255 - colour[3]);
+
+  currentColourRed = colour[0];
+  currentColourGreen = colour[1];
+  currentColourBlue = colour[2];
+  currentColourWhite = colour[3];
 
 }
 
@@ -49,25 +60,72 @@ byte DIPReadValue(){
 }
 
 // This function takes an array of RGBW arrays, and a dwell time, then cycles
-void staticColourCycle(byte colours[][4], int dwellTime = 500) {
+void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps = 250) {
 
-  Serial.println("SCC");
+  byte output[4];
 
-  int numColours = sizeof(colours);
+  if (fadeTime == 0) {
 
-  Serial.println(numColours);
-
-  byte i = 0;
-  for (i = 0; i < numColours; i++) {
-
-    Serial.print("Colour Step: ");
-    Serial.println(i);
-
-    byte output[4] = { colours[i][0], colours[i][1], colours[i][2], colours[i][3] };
+    // Fade is 0, snap the colour
+    byte output[4] = { colour[0], colour[1], colour[2], colour[3] };
     setOutput(output);
 
-    delay(dwellTime);
+  } else {
+    // We actually have a fade time to consider. Engage maths!
+
+    // First, sanity check. We can't have more steps than we have fade time.
+    if (steps > fadeTime) {
+      steps = fadeTime;
+    }
+
+    // What's the actual delta per step for each colour?
+    int changeRedStep = (colour[0] - currentColourRed) / steps;
+    int changeGreenStep = (colour[1] - currentColourGreen) / steps;
+    int changeBlueStep = (colour[2] - currentColourBlue) / steps;
+    int changeWhiteStep = (colour[3] - currentColourWhite) / steps;
+
+    // Somewhere to put the output colours.
+    int colourOutputRed;
+    int colourOutputGreen;
+    int colourOutputBlue;
+    int colourOutputWhite;
+
+    // What's the step delay?
+    int stepDelay = fadeTime / steps;
+
+    // Do the magic!
+    int i;
+    for(i=0; i<=steps; i++){
+
+      int colourOutputRed = currentColourRed + changeRedStep;
+      int colourOutputGreen = currentColourGreen + changeGreenStep;
+      int colourOutputBlue = currentColourBlue + changeBlueStep;
+      int colourOutputWhite = currentColourWhite + changeWhiteStep;
+
+      // Sanity!
+      if (colourOutputRed > 255) colourOutputRed = 255;
+      if (colourOutputGreen > 255) colourOutputGreen = 255;
+      if (colourOutputBlue > 255) colourOutputBlue = 255;
+      if (colourOutputWhite > 255) colourOutputWhite = 255;
+      if (colourOutputRed < 0) colourOutputRed = 0;
+      if (colourOutputGreen < 0) colourOutputGreen = 0;
+      if (colourOutputBlue < 0) colourOutputBlue = 0;
+      if (colourOutputWhite < 0) colourOutputWhite = 0;
+
+      // Set the output.
+      byte output[4] = { colourOutputRed, colourOutputGreen, colourOutputBlue, colourOutputWhite };
+      setOutput(output);
+
+      // Wait for the necessary delay.
+      delay(stepDelay);
+    }
+
+    byte output[4] = { colour[0], colour[1], colour[2], colour[3] };
+    setOutput(output);
   }
+
+  // Wait about for the given dwell time.
+  delay(dwellTime);
 
 }
 
@@ -224,16 +282,11 @@ void loop() {
       // Cycles red, white and blue with a delay on each colour.
       Serial.println("Rule Britannia (Program 2)");
 
-      byte colours[][4] = {
-        {*COLOUR_RED},
-        { 0, 255, 0, 0 },
-        { 0, 0, 255, 0 },
-        { 0, 0, 0, 255 }
-      };
-
       while(true) {
 
-        staticColourCycle(colours);
+        goToColour(COLOUR_RED, 1200, 200);
+        goToColour(COLOUR_WHITE_TRUE, 1200, 200);
+        goToColour(COLOUR_BLUE, 1200, 200);
 
       }
 
