@@ -10,21 +10,21 @@ const byte inputPinsDips[] = {A0,A1,A2};
 // These are nice preset colours
 
 // Black
-byte COLOUR_BLACK[] = { 0, 0, 0, 0 };
+byte COLOUR_BLACK[4] = { 0, 0, 0, 0 };
 
 // The primaries
-byte COLOUR_RED[] = { 255, 0, 0, 0 };
-byte COLOUR_GREEN[] = { 0, 255, 0, 0 };
-byte COLOUR_BLUE[] = { 0, 0, 255, 0 };
+byte COLOUR_RED[4] = { 255, 0, 0, 0 };
+byte COLOUR_GREEN[4] = { 0, 255, 0, 0 };
+byte COLOUR_BLUE[4] = { 0, 0, 255, 0 };
 
 // The mixed primaries
-byte COLOUR_YELLOW[] = { 255, 255, 0, 0 };
-byte COLOUR_MAGENTA[] = { 255, 0, 255, 0 };
-byte COLOUR_CYAN[] = { 0, 255, 255, 0 };
+byte COLOUR_YELLOW[4] = { 255, 255, 0, 0 };
+byte COLOUR_MAGENTA[4] = { 255, 0, 255, 0 };
+byte COLOUR_CYAN[4] = { 0, 255, 255, 0 };
 
 // The flavours of white
-byte COLOUR_WHITE_MIX[] = { 255, 255, 255, 0 };
-byte COLOUR_WHITE_TRUE[] = { 0, 0, 0, 255 };
+byte COLOUR_WHITE_MIX[4] = { 255, 255, 255, 0 };
+byte COLOUR_WHITE_TRUE[4] = { 0, 0, 0, 255 };
 
 // Variables to hold the current colour, so fades can be calculated
 byte currentColourRed;
