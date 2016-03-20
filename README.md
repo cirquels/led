@@ -8,7 +8,7 @@ Cirquels LED Gear is designed to mount to the end of staffs, and provide super-c
 
 The SmartStaff units mount to the end of staffs, and light up in cool colours. They are powered by a 9V battery, and use an Arduino Nano to control the light sequences.
 
-## Base
+### Base
 
 The base unit can provide remote control of the SmartStaff units via 433.92MHz radio. It is powered using either a 12V battery pack, or a 12V mains supply.
 
