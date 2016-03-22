@@ -250,13 +250,6 @@ void loop() {
       // Use DIPs to set the cycle speed
       Serial.println("RGB Cycle Mode (Program 1)");
 
-      byte rgbColour[3];
-
-      // Start off with red.
-      rgbColour[0] = 255;
-      rgbColour[1] = 0;
-      rgbColour[2] = 0;
-
       // How long should we wait between shifting to the next step (milliseconds).
       byte cycleBaseTime = 5;
       byte cycleMultiplier = 0;
