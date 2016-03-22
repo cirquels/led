@@ -48,11 +48,6 @@ void setOutput(byte colour[4]) {
   analogWrite(outputPinLedBlue, 255 - colour[2]);
   analogWrite(outputPinLedWhite, 255 - colour[3]);
 
-  currentColourRed = colour[0];
-  currentColourGreen = colour[1];
-  currentColourBlue = colour[2];
-  currentColourWhite = colour[3];
-
 }
 
 // Read DIP Switch Values
@@ -68,35 +63,32 @@ byte DIPReadValue(){
 }
 
 // This function fades to a specific colour from whatever the current state is.
-void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps = 250) {
+void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0) {
 
+  // Somewhere to put the output
   byte output[4];
 
-  if (fadeTime == 0) {
+  if (fadeTime > 0) {
 
-    // Fade is 0, snap the colour
-    byte output[4] = { colour[0], colour[1], colour[2], colour[3] };
-    setOutput(output);
-
-  } else {
     // We actually have a fade time to consider. Engage maths!
 
-    // First, sanity check. We can't have more steps than we have fade time.
-    if (steps > fadeTime) {
-      steps = fadeTime;
+    byte fadeSteps;
+
+    // Decide how many steps we should use
+    if (fadeTime > 255) {
+      fadeSteps = 255;
+    } else {
+      fadeSteps = fadeTime;
     }
 
-    // We also can't have more than 255 steps (as that's how many brightness options we have)
-    if (steps > 255){
-        steps=255;
-    }
-
+    // Shift the fadeTime to account for the step time
+    int stepTime = fadeTime / fadeSteps;
 
     // What's the actual delta per step for each colour?
-    int changeRedStep = (colour[0] - currentColourRed) / steps;
-    int changeGreenStep = (colour[1] - currentColourGreen) / steps;
-    int changeBlueStep = (colour[2] - currentColourBlue) / steps;
-    int changeWhiteStep = (colour[3] - currentColourWhite) / steps;
+    int changeRedStep = (colour[0] - currentColourRed) / fadeSteps;
+    int changeGreenStep = (colour[1] - currentColourGreen) / fadeSteps;
+    int changeBlueStep = (colour[2] - currentColourBlue) / fadeSteps;
+    int changeWhiteStep = (colour[3] - currentColourWhite) / fadeSteps;
 
     // Somewhere to put the output colours.
     int colourOutputRed;
@@ -104,17 +96,14 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps
     int colourOutputBlue;
     int colourOutputWhite;
 
-    // What's the step delay?
-    int stepDelay = fadeTime / steps;
-
     // Do the magic!
     int i;
-    for(i=0; i<=steps; i++){
+    for(i=0; i<=fadeSteps; i++){
 
-      byte colourOutputRed = currentColourRed + changeRedStep;
-      byte colourOutputGreen = currentColourGreen + changeGreenStep;
-      byte colourOutputBlue = currentColourBlue + changeBlueStep;
-      byte colourOutputWhite = currentColourWhite + changeWhiteStep;
+      colourOutputRed = currentColourRed + ( changeRedStep * i );
+      colourOutputGreen = currentColourGreen + ( changeGreenStep * i );
+      colourOutputBlue = currentColourBlue + ( changeBlueStep * i );
+      colourOutputWhite = currentColourWhite + ( changeWhiteStep * i );
 
       // Sanity!
       if (colourOutputRed > 255) colourOutputRed = 255;
@@ -127,16 +116,26 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0, int steps
       if (colourOutputWhite < 0) colourOutputWhite = 0;
 
       // Set the output.
-      byte output[4] = { colourOutputRed, colourOutputGreen, colourOutputBlue, colourOutputWhite };
+      output[0] = (byte) colourOutputRed;
+      output[1] = (byte) colourOutputGreen;
+      output[2] = (byte) colourOutputBlue;
+      output[3] = (byte) colourOutputWhite;
       setOutput(output);
 
       // Wait for the necessary delay.
-      delay(stepDelay);
+      delay(stepTime);
     }
 
-    byte output[4] = { colour[0], colour[1], colour[2], colour[3] };
-    setOutput(output);
   }
+
+  // Set the output
+  // This either snaps if no fade, or finalises if there is a fade.
+  setOutput(colour);
+
+  currentColourRed = colour[0];
+  currentColourGreen = colour[1];
+  currentColourBlue = colour[2];
+  currentColourWhite = colour[3];
 
   // Wait about for the given dwell time.
   delay(dwellTime);
