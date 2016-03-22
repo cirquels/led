@@ -132,6 +132,7 @@ void goToColour(byte colour[4], int dwellTime = 250, int fadeTime = 0) {
   // This either snaps if no fade, or finalises if there is a fade.
   setOutput(colour);
 
+  // Store the current colours
   currentColourRed = colour[0];
   currentColourGreen = colour[1];
   currentColourBlue = colour[2];
@@ -251,9 +252,9 @@ void loop() {
       Serial.println("RGB Cycle Mode (Program 1)");
 
       // How long should we wait between shifting to the next step (milliseconds).
-      byte cycleBaseTime = 5;
+      int cycleBaseTime = 250;
       byte cycleMultiplier = 0;
-      byte cycleTime = cycleBaseTime * cycleMultiplier;
+      int cycleTime;
 
       while(true) {
 
@@ -265,9 +266,9 @@ void loop() {
           cycleTime = cycleBaseTime * cycleMultiplier;
         }
 
-        goToColour(COLOUR_RED,cycleTime);
-        goToColour(COLOUR_GREEN,cycleTime);
-        goToColour(COLOUR_BLUE,cycleTime);
+        goToColour(COLOUR_RED, cycleTime);
+        goToColour(COLOUR_GREEN, cycleTime);
+        goToColour(COLOUR_BLUE, cycleTime);
 
       }
 
