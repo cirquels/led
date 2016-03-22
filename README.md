@@ -2,7 +2,7 @@
 
 Cirquels LED Gear is designed to mount to the end of staffs, and provide super-cool colour sequences. It can also be used with a base station, which can remotely control and synchronise staffs.
 
-[![Travis](https://img.shields.io/travis/cirquels/led.svg)]() [![GitHub license](https://img.shields.io/github/license/cirquels/led.svg)]()
+[![Travis](https://img.shields.io/travis/cirquels/led.svg)](https://travis-ci.org/cirquels/led) [![GitHub license](https://img.shields.io/github/license/cirquels/led.svg)](https://github.com/cirquels/led/blob/master/LICENSE)
 
 ## Components
 
