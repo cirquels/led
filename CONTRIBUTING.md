@@ -3,10 +3,10 @@
 If you want to submit your own changes to Cirquels LED Gear, that's awesome! Here's how:
 
 1. For the repository, clone it to your local machine, make a branch.
-#. Make your changes.
-#. Test they work.
-#. Push the changes to your repository.
-#. Open a pull request.
+* Make your changes.
+* Test they work.
+* Push the changes to your repository.
+* Open a pull request.
 
 We'll review your pull request, and if we like the changes we'll merge them in to `master`.
 
